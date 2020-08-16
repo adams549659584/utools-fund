@@ -4,11 +4,22 @@ import { DBItem } from '@/types/utools';
 const FUND_DB_PRE_FIX = 'fund_';
 
 export default class FundDBHelper {
-  static set(fundId: string, data: IFundEnt) {
+  static set(data: IFundEnt) {
     return utools.db.put({
-      _id: `${FUND_DB_PRE_FIX}${fundId}`,
+      _id: `${FUND_DB_PRE_FIX}${data.id}`,
       data,
     });
+  }
+
+  static setList(data: IFundEnt[]) {
+    const dbList = data.map(x => {
+      const db: DBItem<IFundEnt> = {
+        _id: `${FUND_DB_PRE_FIX}${x.id}`,
+        data: x,
+      };
+      return db;
+    });
+    return utools.db.bulkDocs(dbList);
   }
 
   static update<IFundEnt>(data: DBItem<IFundEnt>) {

@@ -1,9 +1,11 @@
-import { TemplatePlugin, CallbackListItem, DBItem } from '@/types/utools';
+import { TemplatePlugin, CallbackListItem, DBItem, FilesPayload } from '@/types/utools';
 import { get } from './Helper/HttpHelper';
 import FundDBHelper from './Helper/FundDBHelper';
 import { ISearchFundResult } from './model/ISearchFundResult';
 import { IFundValuationDetailResult } from './model/IFundValuationDetailResult';
 import { IFundEnt } from './model/IFundEnt';
+import { writeFileSync, readFileSync } from 'fs';
+import { resolve } from 'path';
 
 // 缓存基金详情
 let CACHE_FUND_DB_LIST: DBItem<IFundEnt>[];
@@ -113,7 +115,7 @@ const preload: TemplatePlugin = {
       select: (action, itemData, callbackSetList) => {
         const existFund = FundDBHelper.get(itemData.title);
         if (!existFund) {
-          FundDBHelper.set(itemData.title, {
+          FundDBHelper.set({
             id: itemData.title,
             name: itemData.description,
             holdCount: 0,
@@ -190,6 +192,37 @@ const preload: TemplatePlugin = {
           const fundDb = FundDBHelper.get(itemData.fundCode);
           fundDb.data.holdCount = CURRENT_FUND_HOLD_COUNT;
           FundDBHelper.update(fundDb);
+        }
+        utools.redirect('我的自选基金', '');
+      },
+    },
+  },
+  utools_fund_config_export: {
+    mode: 'none',
+    args: {
+      placeholder: '导出我的自选基金数据',
+      enter: async (action, callbackSetList) => {
+        const dbList = FundDBHelper.getAll();
+        const fundData = dbList.map(db => db.data);
+        const savePath = resolve(utools.getPath('desktop'), 'fund_data.json');
+        writeFileSync(savePath, JSON.stringify(fundData), { encoding: 'utf-8' });
+        utools.showNotification(`已导出数据 fund_data.json 至桌面`);
+        utools.redirect('我的自选基金', '');
+      },
+    },
+  },
+  utools_fund_config_import: {
+    mode: 'none',
+    args: {
+      placeholder: '导入我的自选基金数据',
+      enter: async (action, callbackSetList) => {
+        if (action.type === 'files') {
+          const jsonFile: FilesPayload = action.payload[0];
+          if (jsonFile.isFile && jsonFile.name === 'fund_data.json') {
+            const fundJsonStr = readFileSync(jsonFile.path, { encoding: 'utf-8' });
+            const fundData: IFundEnt[] = JSON.parse(fundJsonStr);
+            FundDBHelper.setList(fundData);
+          }
         }
         utools.redirect('我的自选基金', '');
       },

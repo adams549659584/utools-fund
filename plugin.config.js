@@ -3,7 +3,7 @@
  */
 const pluginConfig = {
   pluginName: '自选基金助手',
-  version: 'v1.0.1',
+  version: 'v1.1.0',
   description: '自选基金助手',
   author: '罗君',
   homepage: 'https://github.com/adams549659584/utools-fund',
@@ -39,6 +39,24 @@ const pluginConfig = {
       explain: '我的自选基金',
       icon: 'assets/img/logo.png',
       cmds: ['我的自选基金', '基金', 'fund'],
+    },
+    {
+      code: 'utools_fund_config_export',
+      explain: '导出我的自选基金',
+      icon: 'assets/img/sync.png',
+      cmds: ['导出我的自选基金', '基金', 'fund'],
+    },
+    {
+      code: 'utools_fund_config_import',
+      explain: '导入我的自选基金',
+      icon: 'assets/img/sync.png',
+      cmds: [
+        {
+          type: 'files',
+          label: '导入我的自选基金',
+          match: '/fund_data.json/'
+        }
+      ],
     }
   ],
 };
