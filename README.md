@@ -1,4 +1,4 @@
-### utools-tmpl
+### utools-fund
 
-- 使用 uTools 模板插件的模板
+- 自选基金助手
 

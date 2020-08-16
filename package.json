@@ -1,7 +1,7 @@
 {
-  "name": "utools-tmpl",
+  "name": "utools-fund",
   "version": "1.0.0",
-  "description": "使用 uTools 模板插件的模板",
+  "description": "自选基金助手",
   "main": "main.ts",
   "scripts": {
     "dev": "set NODE_ENV=development && rollup -c -w",

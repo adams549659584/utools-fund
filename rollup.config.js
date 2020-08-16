@@ -24,7 +24,7 @@ const rollupOptions = {
   output: {
     file: './dist/preload.js',
     format: 'cjs',
-    sourcemap: NODE_ENV === 'production' ? 'hidden' : 'inline',
+    sourcemap: NODE_ENV === 'production' ? false : 'inline',
   },
   plugins: [
     cleaner({
