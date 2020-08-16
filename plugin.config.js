@@ -3,7 +3,7 @@
  */
 const pluginConfig = {
   pluginName: '自选基金助手',
-  version: 'v1.0.0',
+  version: 'v1.0.1',
   description: '自选基金助手',
   author: '罗君',
   homepage: 'https://github.com/adams549659584/utools-fund',
@@ -26,13 +26,13 @@ const pluginConfig = {
       code: 'utools_fund_add',
       explain: '添加自选基金',
       icon: 'assets/img/add.png',
-      cmds: ['添加自选基金', '基金', 'fund']
+      cmds: ['添加自选基金', '继续添加自选基金', '基金', 'fund']
     },
     {
       code: 'utools_fund_del',
       explain: '删除自选基金',
       icon: 'assets/img/del.png',
-      cmds: ['删除自选基金', '基金', 'fund']
+      cmds: ['删除自选基金', '继续删除自选基金', '基金', 'fund']
     },
     {
       code: 'utools_fund_my',

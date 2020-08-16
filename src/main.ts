@@ -12,42 +12,45 @@ let CURRENT_FUND_HOLD_COUNT = 0;
 
 const getMyFundDetails = async () => {
   const dbList = FundDBHelper.getAll();
-  for (const db of dbList) {
-    const oldData = db.data;
-    const fundValuationDetail = await get<IFundValuationDetailResult>(
-      `https://fundmobapi.eastmoney.com/FundMApi/FundVarietieValuationDetail.ashx?FCODE=${oldData.id}&deviceid=D03E8A22-9E0A-473F-B045-3745FC7931C4&plat=Iphone&product=EFund&version=6.2.9&GTOKEN=793EAE9248BC4181A9380C49938D1E31`
-    );
-    if (fundValuationDetail.ErrCode !== 0) {
-      utools.showMessageBox({
-        message: fundValuationDetail.ErrMsg,
-      });
-      continue;
-    }
-    let lastTime = fundValuationDetail.Expansion.GZTIME;
-    let nowJJJZ = Number(fundValuationDetail.Expansion.GZ);
-    const searchFundResult = await get<ISearchFundResult>(`http://fundsuggest.eastmoney.com/FundSearch/api/FundSearchAPI.ashx?m=1&key=${oldData.id}`);
-    if (searchFundResult.ErrCode !== 0) {
-      utools.showMessageBox({
-        message: searchFundResult.ErrMsg,
-      });
-      continue;
-    } else {
-      const searchFundDetail = searchFundResult.Datas[0];
-      // 最后单位净值
-      if (lastTime.includes(searchFundDetail.FundBaseInfo.FSRQ)) {
-        lastTime = searchFundDetail.FundBaseInfo.FSRQ;
-        nowJJJZ = Number(searchFundDetail.FundBaseInfo.DWJZ);
+  await Promise.all(
+    dbList.map(async db => {
+      const oldData = db.data;
+      const fundValuationDetail = await get<IFundValuationDetailResult>(
+        `https://fundmobapi.eastmoney.com/FundMApi/FundVarietieValuationDetail.ashx?FCODE=${oldData.id}&deviceid=D03E8A22-9E0A-473F-B045-3745FC7931C4&plat=Iphone&product=EFund&version=6.2.9&GTOKEN=793EAE9248BC4181A9380C49938D1E31`
+      );
+      if (fundValuationDetail.ErrCode !== 0) {
+        utools.showMessageBox({
+          message: fundValuationDetail.ErrMsg,
+        });
+        return;
       }
-    }
-    db.data = {
-      ...oldData,
-      yesJJJZ: Number(fundValuationDetail.Expansion.DWJZ),
-      nowJJJZ: Number(nowJJJZ),
-      lastTime,
-    };
-    FundDBHelper.update(db);
-    console.log(db.data);
-  }
+      let lastTime = fundValuationDetail.Expansion.GZTIME;
+      let nowJJJZ = Number(fundValuationDetail.Expansion.GZ);
+      const searchFundResult = await get<ISearchFundResult>(`http://fundsuggest.eastmoney.com/FundSearch/api/FundSearchAPI.ashx?m=1&key=${oldData.id}`);
+      if (searchFundResult.ErrCode !== 0) {
+        utools.showMessageBox({
+          message: searchFundResult.ErrMsg,
+        });
+        return;
+      } else {
+        const searchFundDetail = searchFundResult.Datas[0];
+        // 最后单位净值
+        if (lastTime.includes(searchFundDetail.FundBaseInfo.FSRQ)) {
+          lastTime = searchFundDetail.FundBaseInfo.FSRQ;
+          nowJJJZ = Number(searchFundDetail.FundBaseInfo.DWJZ);
+        }
+      }
+      db.data = {
+        ...oldData,
+        yesJJJZ: Number(fundValuationDetail.Expansion.DWJZ),
+        nowJJJZ: Number(nowJJJZ),
+        lastTime,
+      };
+      FundDBHelper.update(db);
+      console.log(JSON.stringify(db.data));
+      return db;
+    })
+  );
   return FundDBHelper.getAll();
 };
 
@@ -119,7 +122,7 @@ const preload: TemplatePlugin = {
             lastTime: itemData.FSRQ,
           });
         }
-        utools.redirect('我的自选基金', '');
+        utools.redirect('继续添加自选基金', '');
       },
     },
   },
@@ -155,7 +158,7 @@ const preload: TemplatePlugin = {
       }, // 用户选择列表中某个条目时被调用
       select: (action, itemData, callbackSetList) => {
         FundDBHelper.del(itemData.title);
-        utools.redirect('我的自选基金', '');
+        utools.redirect('继续删除自选基金', '');
       },
     },
   },
