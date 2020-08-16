@@ -1,0 +1,53 @@
+{
+  "javascript.validate.enable": false,
+  "editor.tabSize": 2, //代码缩进修改成2个空格
+  "editor.formatOnSave": false, //每次保存的时候自动格式化
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true
+  }, //每次保存的时候将代码按eslint格式进行修复
+  "javascript.format.insertSpaceBeforeFunctionParenthesis": true, //让函数(名)和后面的括号之间加个空格
+  "vetur.format.defaultFormatter.html": "prettyhtml", //prettyhtml 
+  "vetur.format.defaultFormatter.css": "prettier",
+  "vetur.format.defaultFormatter.postcss": "prettier",
+  "vetur.format.defaultFormatter.scss": "prettier",
+  "vetur.format.defaultFormatter.less": "prettier",
+  "vetur.format.defaultFormatter.stylus": "stylus-supremacy",
+  "vetur.format.defaultFormatter.js": "prettier",
+  "vetur.format.defaultFormatter.ts": "prettier",
+  "vetur.format.options.tabSize": 2,
+  "vetur.format.options.useTabs": false,
+  "vetur.format.defaultFormatterOptions": {
+    "js-beautify-html": {
+      "wrap_attributes": "force-aligned" //vue组件中html代码格式化样式
+    },
+    // /vue组件中html代码格式化配置
+    "prettyhtml": {
+      "printWidth": 180, // 使用不同的最大行长度（默认值：80）
+      "singleQuote": false, // 使用单引号代替双引号（默认值：false）
+    },
+    // vue 文件内的js/ts格式化配置
+    "prettier": {
+      "printWidth": 180,
+      "semi": true, //代码结尾的分号
+      "singleQuote": true, //使用单引号替代双引号
+      "eslintIntegration": true, ////让prettier使用eslint的代码格式进行校验
+      "arrowParens": "avoid", //  (x) => {} 箭头函数参数只有一个时是否要有小括号。avoid：省略括号
+    }
+  },
+  "search.followSymlinks": false,
+  "eslint.packageManager": "yarn",
+  "editor.minimap.enabled": false,
+  "workbench.editor.enablePreview": false,
+  //mock setting
+  "EasyMock.corsHeaders": "token,auth",
+  "EasyMock.helloPage": true,
+  "EasyMock.mockFolderName": "src/mock",
+  "EasyMock.mockParse": false,
+  "EasyMock.responseTime": 0,
+  "EasyMock.serverPort": 9999,
+  // 单独js/ts 文件格式化配置
+  "prettier.singleQuote": true,
+  "prettier.semi": true,
+  "prettier.printWidth": 180,
+  "prettier.arrowParens": "avoid", //  (x) => {} 箭头函数参数只有一个时是否要有小括号。avoid：省略括号
+}

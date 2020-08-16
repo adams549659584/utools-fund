@@ -1,0 +1,49 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".", //解析非相对模块名的基准目录
+    "module": "commonjs", //指定生成哪个模块系统代码："None"，"CommonJS"，"AMD"，"System"，"UMD"，"ES6"或"ES2015"。  ► 只有"AMD"和"System"能和--outFile一起使用。  ►"ES6"和"ES2015"可使用在目标输出为"ES5"或更低的情况下。
+    "target": "ES2019", //指定ECMAScript目标版本
+    "lib": [ //编译过程中需要引入的库文件的列表
+      "esnext",
+      "dom",
+      "es5",
+      "es6",
+      "es7",
+      "es2015.promise",
+    ],
+    "jsx": "preserve", //在.tsx文件里支持JSX："react"或"preserve"或"react-native"
+    "jsxFactory": "h", //指定生成目标为react JSX时，使用的JSX工厂函数，比如React.createElement或h。
+    // "allowSyntheticDefaultImports": true, //允许从没有设置默认导出的模块中默认导入。这并不影响代码的显示，仅为了类型检查。
+    "sourceMap": true, //把 ts 文件编译成 js 文件的时候，同时生成对应的 map 文件
+    "experimentalDecorators": true, //启用实验性的ES装饰器。
+    "emitDecoratorMetadata": true, //给源码里的装饰器声明加上设计类型元数据
+    "moduleResolution": "node", //决定如何处理模块。或者是"Node"对于Node.js/io.js，或者是"Classic"（默认）。
+    // "noImplicitAny": false, //在表达式和声明上有隐含的any类型时报错。
+    // "strictNullChecks": true,//在严格的null检查模式下，null和undefined值不包含在任何类型里，只允许用它们自己和any来赋值
+    "importHelpers": true, //从tslib导入辅助工具函数（比如__extends，__rest等）
+    "declaration": true, //生成相应的.d.ts文件。
+    "rootDir": "src/", //仅用来控制输出的目录结构--outDir
+    "outDir": "lib/", //重定向输出目录。
+    "declarationDir": "lib/types", //生成声明文件的输出路径。
+    "noResolve": false, //不把/// <reference``>或模块导入的文件加到编译文件列表。
+    "preserveConstEnums": true, //保留const和enum声明。查看const enums documentation了解详情
+    "noEmit": false, //不生成输出文件。
+    "inlineSourceMap": false, //生成单个sourcemaps文件，而不是将每sourcemaps生成不同的文件。
+    "paths": { //模块名到基于baseUrl的路径映射的列表。查看模块解析文档了解详情。
+      "@/*": [
+        "src/*"
+      ]
+    },
+    "pretty": true, //给错误和消息设置样式，使用颜色和上下文。
+    "resolveJsonModule": true
+  },
+  "include": [
+    "src/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dts",
+    "lib",
+    "test"
+  ]
+}
