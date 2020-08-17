@@ -4,7 +4,7 @@
 - 支持新增删除自选基金，可填入持有份额，实时计算当天收益
 
 #### 使用说明
-![image](src/assets/img/Instructions.gif)
+![Instructions.gif](https://img03.sogoucdn.com/app/a/100520146/4d63e4c89eb939f009344792b5f3afe8)
 
 #### v1.3.0
 
