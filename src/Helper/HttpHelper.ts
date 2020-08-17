@@ -3,7 +3,7 @@ import { IncomingMessage } from 'electron';
 import { convert } from 'encoding';
 
 // 超时时间
-axios.defaults.timeout = 1000 * 1;
+axios.defaults.timeout = 1000 * 10;
 // 添加请求拦截器
 axios.interceptors.request.use(request => {
   // // 默认请求头
