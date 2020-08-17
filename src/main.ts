@@ -68,7 +68,7 @@ const fundDetailsToCbList = (dbList: DBItem<IFundEnt>[]) => {
   let sumIncome = 0;
   let cbList = dbList.map(db => {
     const fund = db.data;
-    const rate = Math.round((fund.nowJJJZ / fund.yesJJJZ - 1) * 10000) / 10000;
+    const rate = fund.nowJJJZ / fund.yesJJJZ - 1;
     const income = fund.holdCount > 0 ? rate * fund.holdCount * fund.yesJJJZ : 0;
     sumIncome += income;
     const cb: CallbackListItem = {

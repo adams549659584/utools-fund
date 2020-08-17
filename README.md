@@ -6,6 +6,10 @@
 #### 使用说明
 ![Instructions.gif](https://img03.sogoucdn.com/app/a/100520146/4d63e4c89eb939f009344792b5f3afe8)
 
+#### v1.3.1
+
+- 涨幅计算调整
+
 #### v1.3.0
 
 - 最后净值确认增加 ✅ 标识

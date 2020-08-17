@@ -765,7 +765,7 @@ export interface PluginConfig {
   pluginName: string;
 
   /**
-   * 插件的版本，需要符合 Semver（语义化版本）规范。一般情况下形如：主.次.修订即可。此为必选项
+   * 插件的版本，需要符合 Semver（语义化版本）规范。一般情况下形如：主.次.修订即可。此为必选项 打包时会以package.json的version为准覆盖此值
    */
   version: string;
 
