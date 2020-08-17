@@ -3,7 +3,7 @@
  */
 const pluginConfig = {
   pluginName: '自选基金助手',
-  version: 'v1.2.0',
+  version: 'v1.3.0',
   description: '自选基金助手',
   author: '罗君',
   homepage: 'https://github.com/adams549659584/utools-fund',
