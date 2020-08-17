@@ -82,6 +82,33 @@ const fundDetailsToCbList = (dbList: DBItem<IFundEnt>[]) => {
   return cbList;
 };
 
+const getFundMarketIndexs = async (searchWord = '') => {
+  const marketResult = await get<{
+    data: {
+      total: number;
+      diff: {
+        f2: number;
+        f3: number;
+        f4: number;
+        f12: string;
+        f14: string;
+      }[];
+    };
+  }>(`https://push2.eastmoney.com/api/qt/ulist.np/get?fltt=2&fields=f2,f3,f4,f12,f14&secids=1.000001,1.000300,0.399001,0.399006&_=1597632105416`);
+  if (searchWord) {
+    marketResult.data.diff = marketResult.data.diff.filter(x => x.f12.includes(searchWord) || x.f14.includes(searchWord));
+  }
+  const cbList = marketResult.data.diff.map(x => {
+    const cb: CallbackListItem = {
+      title: x.f14,
+      description: `涨幅：${x.f3}%    最新：${x.f2}`,
+      icon: x.f3 >= 0 ? 'assets/img/up.png' : 'assets/img/down.png',
+    };
+    return cb;
+  });
+  return cbList;
+};
+
 const preload: TemplatePlugin = {
   utools_fund_add: {
     mode: 'list',
@@ -194,6 +221,20 @@ const preload: TemplatePlugin = {
           FundDBHelper.update(fundDb);
         }
         utools.redirect('我的自选基金', '');
+      },
+    },
+  },
+  utools_fund_market: {
+    mode: 'list',
+    args: {
+      placeholder: '大盘指数行情',
+      enter: async (action, callbackSetList) => {
+        const cbList = await getFundMarketIndexs();
+        callbackSetList(cbList);
+      },
+      search: async (action, searchWord, callbackSetList) => {
+        const cbList = await getFundMarketIndexs(searchWord);
+        callbackSetList(cbList);
       },
     },
   },
