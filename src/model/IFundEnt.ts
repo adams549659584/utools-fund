@@ -20,9 +20,14 @@ export interface IFundEnt {
   yesJJJZ: number;
 
   /**
-   * 现在基金净值
+   * 现在基金估值或净值
    */
   nowJJJZ: number;
+
+  /**
+   * 当前是否是估值
+   */
+  isValuation: boolean;
 
   /**
    * 当前净值对应时间

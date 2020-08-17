@@ -1,4 +1,4 @@
-import { TemplatePlugin, CallbackListItem, DBItem, FilesPayload } from '@/types/utools';
+import { TemplatePlugin, CallbackListItem, DBItem, FilesPayload, CallbackSetList } from '@/types/utools';
 import { get } from './Helper/HttpHelper';
 import FundDBHelper from './Helper/FundDBHelper';
 import { ISearchFundResult } from './model/ISearchFundResult';
@@ -16,40 +16,48 @@ const getMyFundDetails = async () => {
   const dbList = FundDBHelper.getAll();
   await Promise.all(
     dbList.map(async db => {
-      const oldData = db.data;
-      const fundValuationDetail = await get<IFundValuationDetailResult>(
-        `https://fundmobapi.eastmoney.com/FundMApi/FundVarietieValuationDetail.ashx?FCODE=${oldData.id}&deviceid=D03E8A22-9E0A-473F-B045-3745FC7931C4&plat=Iphone&product=EFund&version=6.2.9&GTOKEN=793EAE9248BC4181A9380C49938D1E31`
-      );
-      if (fundValuationDetail.ErrCode !== 0) {
-        utools.showMessageBox({
-          message: fundValuationDetail.ErrMsg,
-        });
-        return;
-      }
-      let lastTime = fundValuationDetail.Expansion.GZTIME;
-      let nowJJJZ = Number(fundValuationDetail.Expansion.GZ);
-      const searchFundResult = await get<ISearchFundResult>(`http://fundsuggest.eastmoney.com/FundSearch/api/FundSearchAPI.ashx?m=1&key=${oldData.id}`);
-      if (searchFundResult.ErrCode !== 0) {
-        utools.showMessageBox({
-          message: searchFundResult.ErrMsg,
-        });
-        return;
-      } else {
-        const searchFundDetail = searchFundResult.Datas[0];
-        // 最后单位净值
-        if (lastTime.includes(searchFundDetail.FundBaseInfo.FSRQ)) {
-          lastTime = searchFundDetail.FundBaseInfo.FSRQ;
-          nowJJJZ = Number(searchFundDetail.FundBaseInfo.DWJZ);
+      try {
+        const oldData = db.data;
+        const fundValuationDetail = await get<IFundValuationDetailResult>(
+          `https://fundmobapi.eastmoney.com/FundMApi/FundVarietieValuationDetail.ashx?FCODE=${oldData.id}&deviceid=D03E8A22-9E0A-473F-B045-3745FC7931C4&plat=Iphone&product=EFund&version=6.2.9&GTOKEN=793EAE9248BC4181A9380C49938D1E31`
+        );
+        if (fundValuationDetail.ErrCode !== 0) {
+          utools.showMessageBox({
+            message: fundValuationDetail.ErrMsg,
+          });
+          return;
         }
+        let lastTime = fundValuationDetail.Expansion.GZTIME;
+        let nowJJJZ = Number(fundValuationDetail.Expansion.GZ);
+        let isValuation = true;
+        const searchFundResult = await get<ISearchFundResult>(`http://fundsuggest.eastmoney.com/FundSearch/api/FundSearchAPI.ashx?m=1&key=${oldData.id}`);
+        if (searchFundResult.ErrCode !== 0) {
+          utools.showMessageBox({
+            message: searchFundResult.ErrMsg,
+          });
+          return;
+        } else {
+          const searchFundDetail = searchFundResult.Datas[0];
+          // 最后单位净值
+          if (lastTime.includes(searchFundDetail.FundBaseInfo.FSRQ)) {
+            // console.log(`净值:`, searchFundDetail.FundBaseInfo);
+            lastTime = searchFundDetail.FundBaseInfo.FSRQ;
+            nowJJJZ = Number(searchFundDetail.FundBaseInfo.DWJZ);
+            isValuation = false;
+          }
+        }
+        db.data = {
+          ...oldData,
+          yesJJJZ: Number(fundValuationDetail.Expansion.DWJZ),
+          nowJJJZ: Number(nowJJJZ),
+          lastTime,
+          isValuation,
+        };
+        FundDBHelper.update(db);
+        // console.log(JSON.stringify(db.data));
+      } catch (error) {
+        console.error(error);
       }
-      db.data = {
-        ...oldData,
-        yesJJJZ: Number(fundValuationDetail.Expansion.DWJZ),
-        nowJJJZ: Number(nowJJJZ),
-        lastTime,
-      };
-      FundDBHelper.update(db);
-      console.log(JSON.stringify(db.data));
       return db;
     })
   );
@@ -65,7 +73,7 @@ const fundDetailsToCbList = (dbList: DBItem<IFundEnt>[]) => {
     sumIncome += income;
     const cb: CallbackListItem = {
       fundCode: fund.id,
-      title: `${fund.id} ${fund.name}`,
+      title: `${fund.id} ${fund.name} ${fund.isValuation ? '' : '✅'}`,
       description: `${(rate * 100).toFixed(2)}% ￥${income.toFixed(2)}`,
       icon: rate >= 0 ? 'assets/img/up.png' : 'assets/img/down.png',
     };
@@ -73,7 +81,7 @@ const fundDetailsToCbList = (dbList: DBItem<IFundEnt>[]) => {
   });
   cbList = [
     {
-      title: `今日总收益`,
+      title: `今日总收益 ${dbList.every(x => !x.data.isValuation) ? '✅' : ''}`,
       description: `￥${sumIncome.toFixed(2)}`,
       icon: sumIncome >= 0 ? 'assets/img/up.png' : 'assets/img/down.png',
     },
@@ -94,19 +102,29 @@ const getFundMarketIndexs = async (searchWord = '') => {
         f14: string;
       }[];
     };
-  }>(`https://push2.eastmoney.com/api/qt/ulist.np/get?fltt=2&fields=f2,f3,f4,f12,f14&secids=1.000001,1.000300,0.399001,0.399006&_=1597632105416`);
+  }>(`https://push2.eastmoney.com/api/qt/ulist.np/get?fltt=2&secids=1.000001,0.399001,0.399006,100.HSI,1.000300&fields=f2,f3,f4,f12,f14`);
   if (searchWord) {
     marketResult.data.diff = marketResult.data.diff.filter(x => x.f12.includes(searchWord) || x.f14.includes(searchWord));
   }
   const cbList = marketResult.data.diff.map(x => {
     const cb: CallbackListItem = {
       title: x.f14,
-      description: `涨幅：${x.f3}%    最新：${x.f2}`,
+      description: `涨幅：${x.f3}%    ---  最新：${x.f2} `,
       icon: x.f3 >= 0 ? 'assets/img/up.png' : 'assets/img/down.png',
     };
     return cb;
   });
   return cbList;
+};
+
+const loading = (cb: CallbackSetList, loadingTips = '加载中，请稍后。。。') => {
+  cb([
+    {
+      title: loadingTips,
+      description: '~~~~~~~~~~~~~~~',
+      icon: 'assets/img/loading.png',
+    },
+  ]);
 };
 
 const preload: TemplatePlugin = {
@@ -149,6 +167,7 @@ const preload: TemplatePlugin = {
             yesJJJZ: 0,
             nowJJJZ: itemData.DWJZ,
             lastTime: itemData.FSRQ,
+            isValuation: true,
           });
         }
         utools.redirect('继续添加自选基金', '');
@@ -196,6 +215,7 @@ const preload: TemplatePlugin = {
     args: {
       placeholder: '输入持有份额，选择对应基金，回车键保存',
       enter: async (action, callbackSetList) => {
+        loading(callbackSetList);
         const dbList = await getMyFundDetails();
         // 缓存
         CACHE_FUND_DB_LIST = dbList;
