@@ -7,6 +7,9 @@ const fundDel: TplFeature = {
     placeholder: '选择需删除的基金，回车键确认',
     enter: (action, callbackSetList) => {
       const dbList = FundDBHelper.getAll();
+      if (dbList.length === 0) {
+        utools.redirect('我的自选基金', '');
+      }
       const cbList = dbList.map(db => {
         const cb: CallbackListItem = {
           title: db.data.id,

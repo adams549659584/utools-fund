@@ -56,6 +56,7 @@ const getMyFundDetails = async () => {
         // console.log(JSON.stringify(db.data));
       } catch (error) {
         console.error(error);
+        utools.showNotification(`网络请求失败，请稍后再试`);
       }
       return db;
     })
@@ -78,14 +79,24 @@ const fundDetailsToCbList = (dbList: DBItem<IFundEnt>[]) => {
     };
     return cb;
   });
-  cbList = [
-    {
-      title: `今日总收益 ${dbList.every(x => !x.data.isValuation) ? '✅' : ''}`,
-      description: `￥${sumIncome.toFixed(2)}`,
-      icon: sumIncome >= 0 ? 'assets/img/up.png' : 'assets/img/down.png',
-    },
-    ...cbList,
-  ];
+  if (cbList.length === 0) {
+    cbList = [
+      {
+        title: ``,
+        description: ``,
+        icon: 'assets/img/add.png',
+      },
+    ];
+  } else {
+    cbList = [
+      {
+        title: `今日总收益 ${dbList.every(x => !x.data.isValuation) ? '✅' : ''}`,
+        description: `￥${sumIncome.toFixed(2)}`,
+        icon: sumIncome >= 0 ? 'assets/img/up.png' : 'assets/img/down.png',
+      },
+      ...cbList,
+    ];
+  }
   return cbList;
 };
 
