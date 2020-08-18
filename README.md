@@ -12,6 +12,9 @@
 ![Instructions.gif](https://img03.sogoucdn.com/app/a/100520146/4d63e4c89eb939f009344792b5f3afe8)
 
 
+### v1.3.7
+- 删除使用说明gif文件，减小打包体积
+
 #### v1.3.6
 
 - 持有份额防止误输入优化
