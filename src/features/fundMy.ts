@@ -7,8 +7,8 @@ import { IFundEnt } from '@/model/IFundEnt';
 
 // 缓存基金详情
 let CACHE_FUND_DB_LIST: DBItem<IFundEnt>[];
-// 当前基金持有数量
-let CURRENT_FUND_HOLD_COUNT = 0;
+// 当前搜索关键字
+let CURRENT_SEARCH_WORD = '';
 let QUERY_TIMER: NodeJS.Timeout;
 
 const getMyFundDetails = async () => {
@@ -64,7 +64,7 @@ const getMyFundDetails = async () => {
   return FundDBHelper.getAll();
 };
 
-const fundDetailsToCbList = (dbList: DBItem<IFundEnt>[]) => {
+const fundDetailsToCbList = (dbList: DBItem<IFundEnt>[], searchWord = '') => {
   let sumIncome = 0;
   let cbList = dbList.map(db => {
     const fund = db.data;
@@ -76,6 +76,7 @@ const fundDetailsToCbList = (dbList: DBItem<IFundEnt>[]) => {
       title: `${fund.id} ${fund.name} ${fund.isValuation ? '' : '✅'}`,
       description: `${(rate * 100).toFixed(2)}% ￥${income.toFixed(2)}`,
       icon: rate >= 0 ? 'assets/img/up.png' : 'assets/img/down.png',
+      searchWord,
     };
     return cb;
   });
@@ -85,6 +86,7 @@ const fundDetailsToCbList = (dbList: DBItem<IFundEnt>[]) => {
         title: ``,
         description: ``,
         icon: 'assets/img/add.png',
+        searchWord,
       },
     ];
   } else {
@@ -93,6 +95,7 @@ const fundDetailsToCbList = (dbList: DBItem<IFundEnt>[]) => {
         title: `今日总收益 ${dbList.every(x => !x.data.isValuation) ? '✅' : ''}`,
         description: `￥${sumIncome.toFixed(2)}`,
         icon: sumIncome >= 0 ? 'assets/img/up.png' : 'assets/img/down.png',
+        searchWord,
       },
       ...cbList,
     ];
@@ -117,7 +120,6 @@ const showFundDetails = async (cb: CallbackSetList, isShowLoading = true) => {
   const dbList = await getMyFundDetails();
   // 缓存
   CACHE_FUND_DB_LIST = dbList;
-  CURRENT_FUND_HOLD_COUNT = 0;
   const cbList = fundDetailsToCbList(dbList);
   cb(cbList);
   // 定时展示
@@ -139,8 +141,7 @@ const fundMy: TplFeature = {
     },
     search: async (action, searchWord, callbackSetList) => {
       let dbList = CACHE_FUND_DB_LIST && CACHE_FUND_DB_LIST.length > 0 ? CACHE_FUND_DB_LIST : await getMyFundDetails();
-      CURRENT_FUND_HOLD_COUNT = Number(searchWord);
-      const cbList = fundDetailsToCbList(dbList);
+      const cbList = fundDetailsToCbList(dbList, searchWord);
       callbackSetList(cbList);
     }, // 用户选择列表中某个条目时被调用
     select: (action, itemData, callbackSetList) => {
@@ -150,8 +151,13 @@ const fundMy: TplFeature = {
       }
       if (action.type === 'text' && itemData.fundCode) {
         const fundDb = FundDBHelper.get(itemData.fundCode);
-        fundDb.data.holdCount = CURRENT_FUND_HOLD_COUNT;
-        FundDBHelper.update(fundDb);
+        if (itemData.searchWord) {
+          const holdCount = parseFloat(itemData.searchWord);
+          if (!Number.isNaN(holdCount)) {
+            fundDb.data.holdCount = holdCount;
+            FundDBHelper.update(fundDb);
+          }
+        }
       }
       utools.redirect('我的自选基金', '');
     },
