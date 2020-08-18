@@ -54,11 +54,11 @@ const rollupOptions = {
     replace({
       ENV: JSON.stringify(NODE_ENV),
     }),
-    // NODE_ENV === 'production' && terser({
-    //   format: {
-    //     comments: false
-    //   }
-    // }),
+    NODE_ENV === 'production' && terser({
+      format: {
+        comments: false
+      }
+    }),
   ],
 };
 export default rollupOptions;

@@ -11,6 +11,10 @@
 
 ![Instructions.gif](https://img03.sogoucdn.com/app/a/100520146/4d63e4c89eb939f009344792b5f3afe8)
 
+#### v1.3.5
+
+- 移除网络失败提示
+
 #### v1.3.4
 
 - 移除 encoding 

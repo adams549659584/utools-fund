@@ -55,8 +55,8 @@ const getMyFundDetails = async () => {
         FundDBHelper.update(db);
         // console.log(JSON.stringify(db.data));
       } catch (error) {
-        console.error(error);
-        utools.showNotification(`网络请求失败，请稍后再试`);
+        console.error(`${db.data.id} ${db.data.name} :`, error);
+        // utools.showNotification(`网络请求失败，请稍后再试`);
       }
       return db;
     })
