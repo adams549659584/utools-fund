@@ -9,6 +9,7 @@ import { IFundEnt } from '@/model/IFundEnt';
 let CACHE_FUND_DB_LIST: DBItem<IFundEnt>[];
 // 当前基金持有数量
 let CURRENT_FUND_HOLD_COUNT = 0;
+let QUERY_TIMER: NodeJS.Timeout;
 
 const getMyFundDetails = async () => {
   const dbList = FundDBHelper.getAll();
@@ -98,19 +99,32 @@ const loading = (cb: CallbackSetList, loadingTips = '加载中，请稍后。。
   ]);
 };
 
+const showFundDetails = async (cb: CallbackSetList, isShowLoading = true) => {
+  if (isShowLoading) {
+    loading(cb);
+  }
+  const dbList = await getMyFundDetails();
+  // 缓存
+  CACHE_FUND_DB_LIST = dbList;
+  CURRENT_FUND_HOLD_COUNT = 0;
+  const cbList = fundDetailsToCbList(dbList);
+  cb(cbList);
+  // 定时展示
+  QUERY_TIMER = setTimeout(() => {
+    showFundDetails(cb, false);
+  }, 1000 * 60);
+};
+utools.onPluginOut(() => {
+  clearTimeout(QUERY_TIMER);
+});
+
 const fundMy: TplFeature = {
   mode: 'list',
   args: {
     placeholder: '输入持有份额，选择对应基金，回车键保存',
     enter: async (action, callbackSetList) => {
-      loading(callbackSetList);
-      const dbList = await getMyFundDetails();
-      // 缓存
-      CACHE_FUND_DB_LIST = dbList;
-      CURRENT_FUND_HOLD_COUNT = 0;
-      const cbList = fundDetailsToCbList(dbList);
-      // 如果进入插件就要显示列表数据
-      callbackSetList(cbList);
+      clearTimeout(QUERY_TIMER);
+      showFundDetails(callbackSetList);
     },
     search: async (action, searchWord, callbackSetList) => {
       let dbList = CACHE_FUND_DB_LIST && CACHE_FUND_DB_LIST.length > 0 ? CACHE_FUND_DB_LIST : await getMyFundDetails();
