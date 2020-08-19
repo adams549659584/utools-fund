@@ -134,13 +134,20 @@ utools.onPluginOut(() => {
 const fundMy: TplFeature = {
   mode: 'list',
   args: {
-    placeholder: '输入持有份额，选择对应基金，回车键保存',
+    placeholder: '输入持有份额，选择对应基金，回车键保存，s前缀搜索',
     enter: async (action, callbackSetList) => {
       clearTimeout(QUERY_TIMER);
       showFundDetails(callbackSetList);
     },
     search: async (action, searchWord, callbackSetList) => {
       let dbList = CACHE_FUND_DB_LIST && CACHE_FUND_DB_LIST.length > 0 ? CACHE_FUND_DB_LIST : await getMyFundDetails();
+      if (searchWord && searchWord.startsWith('s')) {
+        searchWord = searchWord.substring(1);
+        const newDbList = dbList.filter(d => d.data.id.includes(searchWord) || d.data.name.includes(searchWord));
+        if (newDbList.length > 0) {
+          dbList = newDbList;
+        }
+      }
       const cbList = fundDetailsToCbList(dbList, searchWord);
       callbackSetList(cbList);
     }, // 用户选择列表中某个条目时被调用
