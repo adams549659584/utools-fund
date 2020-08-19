@@ -9,11 +9,15 @@
 
 #### 使用说明
 
-![Instructions.gif](https://img03.sogoucdn.com/app/a/100520146/4d63e4c89eb939f009344792b5f3afe8)
+![Instructions.gif](https://s1.ax1x.com/2020/08/19/dQ8R3t.gif)
 
+### v1.3.8
+
+- 更换使用说明gif链接
 
 ### v1.3.7
-- 删除使用说明gif文件，减小打包体积
+
+- 删除使用说明 gif 文件，减小打包体积
 
 #### v1.3.6
 
@@ -25,7 +29,7 @@
 
 #### v1.3.4
 
-- 移除 encoding 
+- 移除 encoding
 - 修复重构导致导入 bug
 - 优化无基金时删除及我的自选基金列表展示
 

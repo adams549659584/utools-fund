@@ -1,6 +1,6 @@
 {
   "name": "utools-fund",
-  "version": "v1.3.7",
+  "version": "v1.3.8",
   "description": "自选基金助手",
   "main": "main.ts",
   "scripts": {
