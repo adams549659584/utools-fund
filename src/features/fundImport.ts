@@ -11,7 +11,7 @@ const fundImport: TplFeature = {
     enter: async (action, callbackSetList) => {
       if (action.type === 'files') {
         const jsonFile: FilesPayload = action.payload[0];
-        if (jsonFile.isFile && jsonFile.name === 'fund_data.json') {
+        if (jsonFile.isFile && jsonFile.name.includes('fund_data.json')) {
           const fundJsonStr = readFileSync(jsonFile.path, { encoding: 'utf-8' });
           const fundData: IFundEnt[] = JSON.parse(fundJsonStr);
           FundDBHelper.setList(fundData);

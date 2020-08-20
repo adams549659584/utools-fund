@@ -5,18 +5,28 @@ const FUND_DB_PRE_FIX = 'fund_';
 
 export default class FundDBHelper {
   static set(data: IFundEnt) {
-    return utools.db.put({
+    const db: DBItem<IFundEnt> = {
       _id: `${FUND_DB_PRE_FIX}${data.id}`,
       data,
-    });
+    };
+    const existDB = FundDBHelper.get(data.id);
+    if (existDB) {
+      db._rev = existDB._rev;
+    }
+    return utools.db.put(db);
   }
 
   static setList(data: IFundEnt[]) {
+    const existDBList = FundDBHelper.getAll();
     const dbList = data.map(x => {
       const db: DBItem<IFundEnt> = {
         _id: `${FUND_DB_PRE_FIX}${x.id}`,
         data: x,
       };
+      const existDB = existDBList.find(d => d.data.id === x.id);
+      if (existDB) {
+        db._rev = existDB._rev;
+      }
       return db;
     });
     return utools.db.bulkDocs(dbList);
