@@ -1,6 +1,4 @@
-import axios, { AxiosRequestConfig } from 'axios';
-import { IncomingMessage } from 'electron';
-// import { convert } from 'encoding';
+import axios, { AxiosRequestConfig } from '../assets/js/axios.min.js';
 
 // 超时时间
 axios.defaults.timeout = 1000 * 10;

@@ -28,12 +28,13 @@ const rollupOptions = {
     format: 'cjs',
     sourcemap: NODE_ENV === 'production' ? false : 'inline',
   },
+  external: ['../assets/js/axios.min.js'],
   plugins: [
     cleaner({
       targets: ['dist'],
     }),
     json(),
-    typescript({ lib: ['es5', 'es6', 'dom'], target: 'es5' }),
+    typescript({ lib: ['es5', 'es6', 'dom'], target: 'esnext' }),
     resolve(),
     commonjs(),
     copy({
@@ -47,18 +48,18 @@ const rollupOptions = {
           rename: (name, extension) => 'plugin.json',
         },
         { src: 'README.md', dest: 'dist' },
-        { src: 'src/assets/**/*', dest: 'dist' },
+        { src: 'src/assets/**/*', dest: 'dist' }
       ],
       verbose: true,
     }),
     replace({
       ENV: JSON.stringify(NODE_ENV),
     }),
-    NODE_ENV === 'production' && terser({
-      format: {
-        comments: false
-      }
-    }),
+    // NODE_ENV === 'production' && terser({
+    //   format: {
+    //     comments: false
+    //   }
+    // }),
   ],
 };
 export default rollupOptions;
