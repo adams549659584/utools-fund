@@ -5,7 +5,7 @@
 
 #### 源码
 
-> https://github.com/adams549659584/utools-fund
+> [https://github.com/adams549659584/utools-fund](https://github.com/adams549659584/utools-fund)
 
 #### 使用说明
 
