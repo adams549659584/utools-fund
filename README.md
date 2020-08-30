@@ -11,6 +11,10 @@
 
 ![Instructions.gif](https://s1.ax1x.com/2020/08/19/dQ8R3t.gif)
 
+### v1.4.2
+
+- 去掉平台限制
+
 ### v1.4.0
 
 - 优化导入数据

@@ -10,7 +10,7 @@ const pluginConfig = {
   // main: 'index.html',
   preload: 'preload.js',
   logo: 'assets/img/logo.png',
-  platform: ['win32'],
+  // platform: ['win32'],
   // development: {
   //   main: '',
   //   preload: '',
