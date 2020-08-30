@@ -7,6 +7,10 @@
 
 > [https://github.com/adams549659584/utools-fund](https://github.com/adams549659584/utools-fund)
 
+#### 插件下载
+
+> [https://github.com/adams549659584/utools-fund/releases](https://github.com/adams549659584/utools-fund/releases)
+
 #### 使用说明
 
 ![Instructions.gif](https://s1.ax1x.com/2020/08/19/dQ8R3t.gif)
