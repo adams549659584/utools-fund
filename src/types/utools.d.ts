@@ -100,7 +100,7 @@ export interface UTools {
    * @param cmd 插件关键词
    * @param payload
    */
-  redirect(cmd: string, payload: string | FilesPayload | WindowPayload;): Boolean;
+  redirect(cmd: string, payload: string | FilesPayload | WindowPayload): Boolean;
 
   /**
    * 弹出文件选择框
