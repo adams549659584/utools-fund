@@ -127,15 +127,44 @@ const showFundDetails = async (cb: CallbackSetList, isShowLoading = true) => {
     showFundDetails(cb, false);
   }, 1000 * 60);
 };
-utools.onPluginOut(() => {
-  clearTimeout(QUERY_TIMER);
-});
+
+const hanlderUTools = {
+  get(obj, prop) {
+    // 是否魔改版标识
+    if (prop === 'isMagicRevision') {
+      return true;
+    }
+    if (prop === '__event__') {
+      const val = obj[prop];
+      // 处理用户退出当前插件，停止查询
+      if (val.onPluginOut && !val.onPluginOut.isMagicRevision) {
+        const rawOnPluginOut = val.onPluginOut;
+        val.onPluginOut = cb => {
+          console.log(`用户退出插件`);
+          clearTimeout(QUERY_TIMER);
+          return rawOnPluginOut(cb);
+        };
+        val.onPluginOut.isMagicRevision = true;
+      }
+      return val;
+    }
+    return obj[prop];
+  },
+  // set(obj, prop, value) {
+  //   console.log(`set ${prop} : `, value);
+  //   obj[prop] = value;
+  //   return true;
+  // },
+};
 
 const fundMy: TplFeature = {
   mode: 'list',
   args: {
     placeholder: '输入持有份额，选择对应基金，回车键保存，s前缀搜索',
     enter: async (action, callbackSetList) => {
+      if (!utools.isMagicRevision) {
+        utools = new Proxy(utools, hanlderUTools);
+      }
       clearTimeout(QUERY_TIMER);
       showFundDetails(callbackSetList);
     },

@@ -6,6 +6,11 @@ import { StreamProtocolResponse } from 'electron';
  * @description 文档链接: https://u.tools/docs/developer/api.html
  */
 export interface UTools {
+  /**
+   * 是否魔改版标识
+   */
+  isMagicRevision: boolean;
+
   // 事件相关API
   /**
    * @description 当插件装载成功，uTools将会主动调用这个方法（生命周期内仅调用一次）
