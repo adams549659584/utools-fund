@@ -92,7 +92,7 @@ const fundDetailsToCbList = (dbList: DBItem<IFundEnt>[], searchWord = '') => {
   } else {
     cbList = [
       {
-        title: `今日总收益 ${dbList.every(x => !x.data.isValuation) ? '✅' : ''}`,
+        title: `今日总收益 ${dbList.filter(x => x.data.holdCount > 0).every(x => !x.data.isValuation) ? '✅' : ''}`,
         description: `￥${sumIncome.toFixed(2)}`,
         icon: sumIncome >= 0 ? 'assets/img/up.png' : 'assets/img/down.png',
         searchWord,
