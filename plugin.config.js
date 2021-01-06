@@ -29,12 +29,12 @@ const pluginConfig = {
       icon: 'assets/img/add.png',
       cmds: ['添加自选基金', '继续添加自选基金', '基金', 'fund'],
     },
-    {
-      code: 'utools_fund_del',
-      explain: '删除自选基金',
-      icon: 'assets/img/del.png',
-      cmds: ['删除自选基金', '继续删除自选基金', '基金', 'fund'],
-    },
+    // {
+    //   code: 'utools_fund_del',
+    //   explain: '删除自选基金',
+    //   icon: 'assets/img/del.png',
+    //   cmds: ['删除自选基金', '继续删除自选基金', '基金', 'fund'],
+    // },
     {
       code: 'utools_fund_my',
       explain: '我的自选基金',

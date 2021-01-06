@@ -4,12 +4,14 @@ import { IFundValuationDetailResult } from '@/model/IFundValuationDetailResult';
 import { get } from '@/Helper/HttpHelper';
 import { ISearchFundResult } from '@/model/ISearchFundResult';
 import { IFundEnt } from '@/model/IFundEnt';
+import Mousetrap from '../assets/js/mousetrap.min.js';
 
 // 缓存基金详情
 let CACHE_FUND_DB_LIST: DBItem<IFundEnt>[];
 // 当前搜索关键字
 let CURRENT_SEARCH_WORD = '';
 let QUERY_TIMER: NodeJS.Timeout;
+let CACHE_CALLBACK_SET_LIST: CallbackSetList;
 
 const getMyFundDetails = async () => {
   const dbList = FundDBHelper.getAll();
@@ -142,6 +144,7 @@ const hanlderUTools = {
         val.onPluginOut = cb => {
           console.log(`用户退出插件`);
           clearTimeout(QUERY_TIMER);
+          unregisterShortCut();
           return rawOnPluginOut(cb);
         };
         val.onPluginOut.isMagicRevision = true;
@@ -157,18 +160,51 @@ const hanlderUTools = {
   // },
 };
 
+const registerShortCut = async () => {
+  // 删除
+  Mousetrap.bind('mod+del', () => {
+    const selectedItem = document.querySelector('.list-item-selected .list-item-title');
+    if (selectedItem && selectedItem.innerHTML) {
+      const fundId = selectedItem.innerHTML.split(' ')[0];
+      if (CACHE_FUND_DB_LIST && CACHE_FUND_DB_LIST.length > 0 && CACHE_FUND_DB_LIST.some(x => x.data.id === fundId)) {
+        FundDBHelper.del(fundId);
+        if (CACHE_CALLBACK_SET_LIST) {
+          clearTimeout(QUERY_TIMER);
+          showFundDetails(CACHE_CALLBACK_SET_LIST);
+        } else {
+          console.error(`CACHE_CALLBACK_SET_LIST is null`);
+        }
+      } else {
+        console.error(`del error :`);
+        console.error(`fundId : ${fundId} , CACHE_FUND_DB_LIST : `, CACHE_FUND_DB_LIST);
+      }
+    }
+    return false;
+  });
+  // 跳转新增
+  Mousetrap.bind('mod+ins', () => {
+    utools.redirect('添加自选基金', '');
+  });
+};
+const unregisterShortCut = async () => {
+  // Mousetrap.unbind(['up', 'down', 'mod+del', 'mod+ins']);
+};
+
 const fundMy: TplFeature = {
   mode: 'list',
   args: {
-    placeholder: '输入持有份额，选择对应基金，回车键保存，s前缀搜索',
+    placeholder: '输入份额，选择基金，Enter 保存，ctrl + delete 删除 ， ctrl + insert 添加 ，s前缀搜索',
     enter: async (action, callbackSetList) => {
+      CACHE_CALLBACK_SET_LIST = callbackSetList;
       if (!utools.isMagicRevision) {
         utools = new Proxy(utools, hanlderUTools);
       }
       clearTimeout(QUERY_TIMER);
       showFundDetails(callbackSetList);
+      registerShortCut();
     },
     search: async (action, searchWord, callbackSetList) => {
+      CACHE_CALLBACK_SET_LIST = callbackSetList;
       let dbList = CACHE_FUND_DB_LIST && CACHE_FUND_DB_LIST.length > 0 ? CACHE_FUND_DB_LIST : await getMyFundDetails();
       if (searchWord && searchWord.startsWith('s')) {
         searchWord = searchWord.substring(1);
@@ -181,6 +217,7 @@ const fundMy: TplFeature = {
       callbackSetList(cbList);
     }, // 用户选择列表中某个条目时被调用
     select: (action, itemData, callbackSetList) => {
+      CACHE_CALLBACK_SET_LIST = callbackSetList;
       if (!CACHE_FUND_DB_LIST || CACHE_FUND_DB_LIST.length === 0) {
         utools.redirect('添加自选基金', '');
         return;

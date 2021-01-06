@@ -15,6 +15,16 @@
 
 ![Instructions.gif](https://s1.ax1x.com/2020/08/19/dQ8R3t.gif)
 
+### v1.6.0
+
+- 新增快捷键
+
+  > ctrl + insert 跳转添加自选基金
+
+  > ctrl + delete 删除选中的自选基金
+
+- 移除删除自选基金界面
+
 ### v1.5.1
 
 - 今日收益确认无需等待持仓数量为0的基金

@@ -7,7 +7,7 @@ import commonjs from 'rollup-plugin-commonjs';
 import pluginConfig from './plugin.config.js';
 import copy from 'rollup-plugin-copy';
 import replace from 'rollup-plugin-replace';
-import { terser } from "rollup-plugin-terser";
+import { terser } from 'rollup-plugin-terser';
 
 /**
  * 当前环境
@@ -28,7 +28,7 @@ const rollupOptions = {
     format: 'cjs',
     sourcemap: NODE_ENV === 'production' ? false : 'inline',
   },
-  external: ['../assets/js/axios.min.js'],
+  external: ['../assets/js/axios.min.js', '../assets/js/mousetrap.min.js'],
   plugins: [
     cleaner({
       targets: ['dist'],
@@ -48,7 +48,7 @@ const rollupOptions = {
           rename: (name, extension) => 'plugin.json',
         },
         { src: 'README.md', dest: 'dist' },
-        { src: 'src/assets/**/*', dest: 'dist' }
+        { src: 'src/assets/**/*', dest: 'dist' },
       ],
       verbose: true,
     }),
