@@ -15,6 +15,10 @@
 
 ![Instructions.gif](https://s1.ax1x.com/2020/08/19/dQ8R3t.gif)
 
+### v1.6.1
+
+- 今日总收益计算结果优化
+
 ### v1.6.0
 
 - 新增快捷键

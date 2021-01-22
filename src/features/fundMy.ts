@@ -72,7 +72,7 @@ const fundDetailsToCbList = (dbList: DBItem<IFundEnt>[], searchWord = '') => {
     const fund = db.data;
     const rate = fund.nowJJJZ / fund.yesJJJZ - 1;
     const income = fund.holdCount > 0 ? rate * fund.holdCount * fund.yesJJJZ : 0;
-    sumIncome += income;
+    sumIncome += Math.round(income * 100) / 100;
     const cb: CallbackListItem = {
       fundCode: fund.id,
       title: `${fund.id} ${fund.name} ${fund.isValuation ? '' : '✅'}`,
