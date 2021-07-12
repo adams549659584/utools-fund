@@ -76,7 +76,7 @@ const fundDetailsToCbList = (dbList: DBItem<IFundEnt>[], searchWord = '') => {
     const cb: CallbackListItem = {
       fundCode: fund.id,
       title: `${fund.id} ${fund.name} ${fund.isValuation ? '' : '✅'}`,
-      description: `${(rate * 100).toFixed(2)}% ￥${income.toFixed(2)}`,
+      description: `${(rate * 100).toFixed(2)}% ￥${income.toFixed(2)}` + (fund.holdCount > 0 ? ` 持有份额:${fund.holdCount.toFixed(2)}` : ''),
       icon: rate >= 0 ? 'assets/img/up.png' : 'assets/img/down.png',
       searchWord,
     };
