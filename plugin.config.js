@@ -2,7 +2,7 @@
  * @type { import ('./src/types/utools').PluginConfig }
  */
 const pluginConfig = {
-  pluginId: 'ae839ccb',
+  // pluginId: 'ae839ccb',
   pluginName: '自选基金助手',
   // version: 'v0.0.0',
   description: '自选基金助手',

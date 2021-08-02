@@ -1,50 +1,31 @@
 import { IFundEnt } from '@/model/IFundEnt';
 import { DBItem } from '@/types/utools';
+import DBHelper from './DBHelper';
 
 const FUND_DB_PRE_FIX = 'fund_';
-
+const DB_INSTANCE = new DBHelper(FUND_DB_PRE_FIX);
 export default class FundDBHelper {
   static set(data: IFundEnt) {
-    const db: DBItem<IFundEnt> = {
-      _id: `${FUND_DB_PRE_FIX}${data.id}`,
-      data,
-    };
-    const existDB = FundDBHelper.get(data.id);
-    if (existDB) {
-      db._rev = existDB._rev;
-    }
-    return utools.db.put(db);
+    return DB_INSTANCE.set<IFundEnt>(data);
   }
 
   static setList(data: IFundEnt[]) {
-    const existDBList = FundDBHelper.getAll();
-    const dbList = data.map(x => {
-      const db: DBItem<IFundEnt> = {
-        _id: `${FUND_DB_PRE_FIX}${x.id}`,
-        data: x,
-      };
-      const existDB = existDBList.find(d => d.data.id === x.id);
-      if (existDB) {
-        db._rev = existDB._rev;
-      }
-      return db;
-    });
-    return utools.db.bulkDocs(dbList);
+    return DB_INSTANCE.setList<IFundEnt>(data);
   }
 
-  static update<IFundEnt>(data: DBItem<IFundEnt>) {
-    return utools.db.put(data);
+  static update(data: DBItem<IFundEnt>) {
+    return DB_INSTANCE.update<IFundEnt>(data);
   }
 
   static get(fundId: string) {
-    return utools.db.get<IFundEnt>(`${FUND_DB_PRE_FIX}${fundId}`);
+    return DB_INSTANCE.get<IFundEnt>(fundId);
   }
 
   static getAll() {
-    return utools.db.allDocs<IFundEnt>(FUND_DB_PRE_FIX);
+    return DB_INSTANCE.getAll<IFundEnt>();
   }
 
   static del(fundId: string) {
-    return utools.db.remove(`${FUND_DB_PRE_FIX}${fundId}`);
+    return DB_INSTANCE.del<IFundEnt>(fundId);
   }
 }
