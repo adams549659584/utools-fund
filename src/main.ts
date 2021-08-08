@@ -6,6 +6,11 @@ import fundExport from './features/fundExport';
 import fundMy from './features/fundMy';
 import fundImport from './features/fundImport';
 
+window.utoolsFunc = function () {
+  console.log(`utoolsFunc : `);
+  // utools.outPlugin();
+};
+
 const preload: TemplatePlugin = {
   utools_fund_add: fundAdd,
   // utools_fund_del: fundDel,

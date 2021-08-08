@@ -1,11 +1,11 @@
 /// <reference path="electron.d.ts" />
 
-import { StreamProtocolResponse } from 'electron';
+import { BrowserWindow, StreamProtocolResponse } from 'electron';
 
 /**
  * @description 文档链接: https://u.tools/docs/developer/api.html
  */
-export interface UTools {
+export interface UToolsApi {
   /**
    * 是否魔改版标识
    */
@@ -41,7 +41,7 @@ export interface UTools {
    * @description 当此插件的数据在其他设备上被更改后同步到此设备时，uTools将会主动调用这个方法
    * @param cb 回调函数
    */
-  onDbPull(cb: Function): void;
+  onDbPull(cb: (docs: { _id: string; _rev: string }[]) => void): void;
 
   // 窗口交互 API
   /**
@@ -146,9 +146,9 @@ export interface UTools {
   /**
    * 创建浏览器窗口
    * @param url  相对路径的html文件 例如: test.html?param=xxx
-   * @param options 注意: preload 需配置相对位置
+   * @param options 注意: preload 需配置相对位置 https://www.electronjs.org/docs/api/browser-window#new-browserwindowoptions
    */
-  createBrowserWindow(url: string, options: Electron.BrowserWindowConstructorOptions): void;
+  createBrowserWindow(url: string, options: Electron.BrowserWindowConstructorOptions, callback?: () => void): UBrowserWindow;
 
   // 动态增减
   /**
@@ -174,13 +174,13 @@ export interface UTools {
    * 屏幕取色
    * @param cb 取色结束回调
    */
-  screenColorPick(cb: (options: screenColorPickCBOptions) => {}): void;
+  screenColorPick(cb: (options: screenColorPickCBOptions) => void): void;
 
   /**
    * 屏幕截图
    * @param cb 截图结束回调
    */
-  screenCapture(cb: (img: string) => {}): void;
+  screenCapture(cb: (imgBase64: string) => void): void;
 
   // 模拟
 
@@ -189,7 +189,7 @@ export interface UTools {
    * @param key 键值
    * @param modifier 功能键
    */
-  simulateKeyboardTap(key: string, ...modifier: string[]): void;
+  simulateKeyboardTap(key: string, ...modifier: ('control' | 'ctrl' | 'shift' | 'option' | 'alt' | 'command' | 'super')[]): void;
 
   /**
    * 模拟鼠标移动
@@ -199,20 +199,40 @@ export interface UTools {
   /**
    * 模拟鼠标左键单击
    */
-  simulateMouseClick(x: Number, y: Number): void;
+  simulateMouseClick(x?: number, y?: number): void;
 
   /**
    * 模拟鼠标右键单击
    */
-  simulateMouseRightClick(x: Number, y: Number): void;
+  simulateMouseRightClick(x?: number, y?: number): void;
 
   /**
    * 模拟鼠标双击
    */
-  simulateMouseDoubleClick(x: Number, y: Number): void;
+  simulateMouseDoubleClick(x?: number, y?: number): void;
 
-  // 屏幕 TODO: 待完善
+  /**
+   * 获取鼠标绝对位置
+   */
+  getCursorScreenPoint(): { x: number; y: number };
 
+  // 屏幕
+  /**
+   * 获取主显示器
+   */
+  getPrimaryDisplay(): Display;
+  /**
+   * 获取所有显示器
+   */
+  getAllDisplays(): Display[];
+  /**
+   * 获取位置所在的显示器
+   */
+  getDisplayNearestPoint(point: { x: number; y: number }): Display;
+  /**
+   * 获取矩形所在的显示器
+   */
+  getDisplayMatching(rect: { x: number; y: number; width: number; height: number }): Display;
   // 复制
 
   /**
@@ -225,7 +245,7 @@ export interface UTools {
    * 复制图片到系统剪贴板
    * @param img
    */
-  copyImage(img: string | Buffer): Boolean;
+  copyImage(img: string | Uint8Array): Boolean;
 
   /**
    * 复制文本
@@ -238,7 +258,7 @@ export interface UTools {
    * @description 执行该方法将会弹出一个系统通知。
    * @param body 显示的内容
    */
-  showNotification(body: string): Boolean;
+  showNotification(body: string): void;
 
   /**
    * 系统默认方式打开给定的文件
@@ -317,14 +337,155 @@ export interface UTools {
   // 数据库 api
   db: DB;
 
+  dbStorage: {
+    /**
+     * 键值对存储，如果键名存在，则更新其对应的值
+     * @param key 键名(同时为文档ID)
+     * @param value 键值
+     */
+    setItem(key: string, value: any): void;
+    /**
+     * 获取键名对应的值
+     */
+    getItem(key: string): any;
+    /**
+     * 删除键值对(删除文档)
+     */
+    removeItem(key: string): void;
+  };
+
   // ubrowser api
   ubrowser: Ubrowser;
 
-  getIdleUBrowsers(): Array<any>;
-  setUBrowserProxy(config: any): boolean;
+  /**
+   * 获取闲置的 ubrowser
+   */
+  getIdleUBrowsers(): { id: number; title: string; url: string }[];
+  /**
+   * 设置 ubrowser 代理 https://www.electronjs.org/docs/api/session#sessetproxyconfig
+   */
+  setUBrowserProxy(config: { pacScript?: string; proxyRules?: string; proxyBypassRules?: string }): boolean;
+  /**
+   * 清空 ubrowser 缓存
+   */
+  clearUBrowserCache(): boolean;
+
+  /**
+   * 是否深色模式
+   */
+  isDarkColors(): boolean;
+
+  /**
+   * 获取用户
+   */
+  getUser(): { avatar: string; nickname: string; type: string } | null;
+
+  /**
+   * 获取用户服务端临时令牌
+   */
+  fetchUserServerTemporaryToken(): Promise<{ token: string; expiredAt: number }>;
+
+  /**
+   * 打开支付
+   * @param callback 支付成功触发
+   */
+  openPayment(
+    options: {
+      /**
+       * 商品ID，在 “uTools 开发者工具” 插件中创建
+       */
+      goodsId: string;
+      /**
+       * 第三方服务生成的订单号(可选)
+       */
+      outOrderId?: string;
+      /**
+       * 第三方服务附加数据，在查询API和支付通知中原样返回，可作为自定义参数使用(可选)
+       */
+      attach?: string;
+    },
+    callback?: () => void
+  ): void;
+
+  /**
+   * 获取用户支付记录
+   */
+  fetchUserPayments(): Promise<{ order_id: string; total_fee: number; body: string; attach: string; goods_id: string; out_order_id: string; paid_at: string }[]>;
+
+  /**
+   * 获取本地 ID
+   */
+  getNativeId(): string;
+
+  /**
+   * 获取软件版本
+   */
+  getAppVersion(): string;
+
+  /**
+   * 获取文件图标
+   */
+  getFileIcon(filePath: string): string;
+
+  /**
+   * 获取复制的文件或文件夹
+   */
+  getCopyedFiles(): { isFile: boolean; isDirectory: boolean; name: string; path: string }[];
+
+  /**
+   * 读取当前文件管理器路径(linux 不支持)
+   */
+  readCurrentFolderPath(): Promise<string>;
+
+  /**
+   * 读取当前浏览器窗口的URL(linux 不支持)
+   * MacOs 支持浏览器 Safari、Chrome、Opera、Vivaldi、Brave
+   * Windows 支持浏览器 Chrome、Firefox、Edge、IE、Opera、Brave
+   * Linux 不支持
+   */
+  readCurrentBrowserUrl(): Promise<string>;
+
+  /**
+   * 默认方式打开给定的文件
+   */
+  shellOpenPath(fullPath: string): void;
 }
 
-export type PathName = 'home' | 'appData' | 'userData' | 'temp' | 'exe' | 'desktop' | 'documents' | 'downloads' | 'music' | 'pictures' | 'videos' | 'logs';
+export type UBrowserWindow = BrowserWindow & { executeJavaScript: (js: string) => Promise<any> };
+
+export interface Display {
+  accelerometerSupport: 'available' | 'unavailable' | 'unknown';
+  bounds: { x: number; y: number; width: number; height: number };
+  colorDepth: number;
+  colorSpace: string;
+  depthPerComponent: number;
+  id: number;
+  internal: boolean;
+  monochrome: boolean;
+  rotation: number;
+  scaleFactor: number;
+  size: { width: number; height: number };
+  touchSupport: 'available' | 'unavailable' | 'unknown';
+  workArea: { x: number; y: number; width: number; height: number };
+  workAreaSize: { width: number; height: number };
+}
+
+export type PathName =
+  | 'home'
+  | 'appData'
+  | 'userData'
+  | 'cache'
+  | 'temp'
+  | 'exe'
+  | 'module'
+  | 'desktop'
+  | 'documents'
+  | 'downloads'
+  | 'music'
+  | 'pictures'
+  | 'videos'
+  | 'logs'
+  | 'pepperFlashSystemPlugin';
 export type Platform = 'win32' | 'darwin' | 'linux';
 
 /**
@@ -478,7 +639,7 @@ export interface Feature {
   /**
    * 功能适配平台 ["win32", "darwin", "linux"]，此为可选项
    */
-  platform?: Array<Platform>;
+  platform?: Platform | Array<Platform>;
   /**
    * 该功能下可响应的命令集，支持 6 种类型
    */
@@ -499,7 +660,7 @@ export interface DB {
    * @description 每次更新时都要传入完整的文档数据，无法对单个字段进行更新
    * @param item 数据
    */
-  put<T = any>(item: DBItem<T>): DBRes<T>;
+  put<T = any>(item: DBItem<T>): DbReturn;
 
   /**
    * @description 执行该方法将会根据文档ID获取数据
@@ -511,19 +672,37 @@ export interface DB {
    * @description 执行该方法将会删除数据库文档，可以传入文档对象或文档id进行操作。
    * @param id id 或者是完整的文档
    */
-  remove<T = any>(id: string | DBItem<T>): DBRes<T>;
+  remove<T = any>(id: string | DBItem<T>): DbReturn;
 
   /**
    * @description 执行该方法将会批量更新数据库文档，传入需要更改的文档对象合并成数组进行批量更新。
    * @param items 数据
    */
-  bulkDocs<T = any>(items: DBItem<T>[]): DBRes<T>[];
+  bulkDocs<T = any>(items: DBItem<T>[]): DbReturn[];
 
   /**
    * @description 执行该方法将会获取所有数据库文档，如果传入字符串，则会返回以字符串开头的文档，也可以传入指定ID的数组，不传入则为获取所有文档。
    * @param id id 或 id 数组
    */
   allDocs<T = any>(id?: string | Array<string>): DBItem<T>[];
+
+  /**
+   * 存储附件到新文档
+   * @param docId 文档ID
+   * @param attachment 附件 buffer
+   * @param type 附件类型，示例：image/png, text/plain
+   */
+  postAttachment(docId: string, attachment: Uint8Array, type: string): DbReturn;
+  /**
+   * 获取附件
+   * @param docId 文档ID
+   */
+  getAttachment(docId: string): Uint8Array | null;
+  /**
+   * 获取附件类型
+   * @param docId 文档ID
+   */
+  getAttachmentType(docId: string): string | null;
 }
 
 export interface screenColorPickCBOptions {
@@ -537,12 +716,13 @@ export interface DBItem<T> {
   data: T;
 }
 
-export interface DBRes<T> {
-  _id: string;
-  ok: boolean;
-  data: T;
-  _rev?: string;
-  error?: any;
+export interface DbReturn {
+  id: string;
+  rev?: string;
+  ok?: boolean;
+  error?: boolean;
+  name?: string;
+  message?: string;
 }
 
 export interface FilesPayload {
@@ -587,7 +767,7 @@ export interface Action {
 }
 
 declare global {
-  let utools: UTools;
+  let utools: UToolsApi;
 }
 
 export interface CallbackListItem {
@@ -737,8 +917,8 @@ export interface Ubrowser {
   scroll(selector: string): Ubrowser;
   scroll(y: Number): Ubrowser;
   scroll(x: Number, y: Number): Ubrowser;
-  run(ubrowserId: Number): Promise<any>;
-  run(options?: UbrowserRunOptions): Promise<any>;
+  run(ubrowserId: Number): Promise<any[]>;
+  run(options?: UbrowserRunOptions): Promise<any[]>;
 }
 
 export interface UbrowserRunOptions {

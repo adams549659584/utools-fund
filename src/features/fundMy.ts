@@ -1,4 +1,4 @@
-import { TplFeature, DBItem, CallbackListItem, CallbackSetList } from '@/types/utools';
+import { TplFeature, DBItem, CallbackListItem, CallbackSetList, UBrowserWindow } from '@/types/utools';
 import FundDBHelper from '@/Helper/FundDBHelper';
 import { IFundValuationDetailResult } from '@/model/IFundValuationDetailResult';
 import { get } from '@/Helper/HttpHelper';
@@ -189,6 +189,43 @@ const registerShortCut = async () => {
 const unregisterShortCut = async () => {
   // Mousetrap.unbind(['up', 'down', 'mod+del', 'mod+ins']);
 };
+const showFundDetail = async (fundEnt: Partial<IFundEnt>) => {
+  const fundCode = fundEnt.id;
+  const fundName = fundEnt.name;
+  const url = `/assets/html/fundDetail/fundDetail.html?fundCode=${fundCode}&fundName=${encodeURIComponent(fundName)}`;
+  // const title = `${fundName}(${fundCode})`;
+  const fundDetailUbWindow = utools.createBrowserWindow(
+    url,
+    {
+      // width: 1376,
+      // height: 768,
+      height: 480,
+      // title,
+      show: false,
+      minimizable: false,
+      maximizable: false,
+      webPreferences: {
+        preload: 'preload.js',
+      },
+    },
+    () => {
+      // 显示
+      fundDetailUbWindow.show();
+      // 置顶
+      // fundDetailUbWindow.setAlwaysOnTop(true);
+      // 窗口全屏
+      // fundDetailUbWindow.setFullScreen(true);
+      // 向子窗口传递数据
+      // fundDetailUbWindow.webContents.send('ping');
+      // require('electron').ipcRenderer.sendTo(fundDetailUbWindow.webContents.id, 'ping');
+      // // 执行脚本
+      // fundDetailUbWindow.executeJavaScript('fetch("https://jsonplaceholder.typicode.com/users/1").then(resp => resp.json())').then(result => {
+      //   console.log(result); // Will be the JSON object from the fetch call
+      // });
+    }
+  );
+  // fundDetailUbWindow.webContents.openDevTools();
+};
 
 const fundMy: TplFeature = {
   mode: 'list',
@@ -230,6 +267,9 @@ const fundMy: TplFeature = {
             fundDb.data.holdCount = holdCount;
             FundDBHelper.update(fundDb);
           }
+        } else {
+          showFundDetail(fundDb.data);
+          return;
         }
       }
       utools.redirect('我的自选基金', '');
