@@ -29,7 +29,7 @@ const getMyFundDetails = async () => {
           return;
         }
         let lastTime = fundValuationDetail.Expansion.GZTIME;
-        let nowJJJZ = Number(fundValuationDetail.Expansion.GZ);
+        let nowJJJZ = Number(fundValuationDetail.Expansion.GZ || '0');
         let isValuation = true;
         const searchFundResult = await get<ISearchFundResult>(`http://fundsuggest.eastmoney.com/FundSearch/api/FundSearchAPI.ashx?m=1&key=${oldData.id}`);
         if (searchFundResult.ErrCode !== 0) {
@@ -43,14 +43,14 @@ const getMyFundDetails = async () => {
           if (lastTime.includes(searchFundDetail.FundBaseInfo.FSRQ)) {
             // console.log(`净值:`, searchFundDetail.FundBaseInfo);
             lastTime = searchFundDetail.FundBaseInfo.FSRQ;
-            nowJJJZ = Number(searchFundDetail.FundBaseInfo.DWJZ);
+            nowJJJZ = Number(searchFundDetail.FundBaseInfo.DWJZ || '0');
             isValuation = false;
           }
         }
         db.data = {
           ...oldData,
-          yesJJJZ: Number(fundValuationDetail.Expansion.DWJZ),
-          nowJJJZ: Number(nowJJJZ),
+          yesJJJZ: Number(fundValuationDetail.Expansion.DWJZ || '0'),
+          nowJJJZ: Number(nowJJJZ || '0'),
           lastTime,
           isValuation,
         };
@@ -70,7 +70,7 @@ const fundDetailsToCbList = (dbList: DBItem<IFundEnt>[], searchWord = '') => {
   let sumIncome = 0;
   let cbList = dbList.map(db => {
     const fund = db.data;
-    const rate = fund.nowJJJZ / fund.yesJJJZ - 1;
+    const rate = fund.yesJJJZ === 0 ? 0 : fund.nowJJJZ / fund.yesJJJZ - 1;
     const income = fund.holdCount > 0 ? rate * fund.holdCount * fund.yesJJJZ : 0;
     sumIncome += Math.round(income * 100) / 100;
     const cb: CallbackListItem = {
@@ -190,9 +190,15 @@ const unregisterShortCut = async () => {
   // Mousetrap.unbind(['up', 'down', 'mod+del', 'mod+ins']);
 };
 const showFundDetail = async (fundEnt: Partial<IFundEnt>) => {
-  const fundCode = fundEnt.id;
-  const fundName = fundEnt.name;
-  const url = `/assets/html/fundDetail/fundDetail.html?fundCode=${fundCode}&fundName=${encodeURIComponent(fundName)}`;
+  const dbList = FundDBHelper.getAll();
+  const fundList = dbList.map(db => {
+    return {
+      fundcode: db.data.id,
+      name: db.data.name,
+    };
+  });
+  const fundIndex = fundList.findIndex(x => x.fundcode === fundEnt.id);
+  const url = `/assets/html/fundDetail/fundDetail.html?fundList=${encodeURIComponent(JSON.stringify(fundList))}&fundIndex=${fundIndex}`;
   // const title = `${fundName}(${fundCode})`;
   const fundDetailUbWindow = utools.createBrowserWindow(
     url,
