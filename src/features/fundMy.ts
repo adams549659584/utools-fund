@@ -5,6 +5,7 @@ import { get } from '@/Helper/HttpHelper';
 import { ISearchFundResult } from '@/model/ISearchFundResult';
 import { IFundEnt } from '@/model/IFundEnt';
 import Mousetrap from '../assets/js/mousetrap.min.js';
+import UserAgentHelper from '@/Helper/UserAgentHelper.js';
 
 // 缓存基金详情
 let CACHE_FUND_DB_LIST: DBItem<IFundEnt>[];
@@ -230,6 +231,7 @@ const showFundDetail = async (fundEnt: Partial<IFundEnt>) => {
       // });
     }
   );
+  fundDetailUbWindow.webContents.setUserAgent(UserAgentHelper.getRandom());
   // fundDetailUbWindow.webContents.openDevTools();
 };
 

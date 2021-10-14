@@ -20,6 +20,10 @@
 
 ![Instructions.gif](https://s1.ax1x.com/2020/08/19/dQ8R3t.gif)
 
+### v1.7.2
+
+- 基金明细加上随机UA
+
 ### v1.7.1
 
 - 海外基金NaN问题优化
