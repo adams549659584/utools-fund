@@ -5,10 +5,13 @@ import fundMarket from './features/fundMarket';
 import fundExport from './features/fundExport';
 import fundMy from './features/fundMy';
 import fundImport from './features/fundImport';
+import FundDBHelper from './Helper/FundDBHelper';
 
-window.utoolsFunc = function () {
-  console.log(`utoolsFunc : `);
-  // utools.outPlugin();
+window.utoolsCusFn = {
+  openUrl: (url: string) => utools.shellOpenExternal(url),
+  fundDBHelper: {
+    getAll: () => FundDBHelper.getAll(),
+  },
 };
 
 const preload: TemplatePlugin = {

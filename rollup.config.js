@@ -7,7 +7,7 @@ import commonjs from 'rollup-plugin-commonjs';
 import pluginConfig from './plugin.config.js';
 import copy from 'rollup-plugin-copy';
 import replace from 'rollup-plugin-replace';
-import { terser } from 'rollup-plugin-terser';
+// import { terser } from 'rollup-plugin-terser';
 
 /**
  * 当前环境

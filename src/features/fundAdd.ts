@@ -30,7 +30,7 @@ const fundAdd: TplFeature = {
         const searchResult = await get<ISearchFundResult>(`http://fundsuggest.eastmoney.com/FundSearch/api/FundSearchAPI.ashx?m=1&key=${searchWord}`);
         if (searchResult) {
           if (searchResult.ErrCode === 0) {
-            cbList = searchResult.Datas.map(fund => {
+            cbList = searchResult.Datas.filter(x => !!x.FundBaseInfo).map(fund => {
               const cb: CallbackListItem = {
                 title: fund.CODE,
                 description: fund.NAME,

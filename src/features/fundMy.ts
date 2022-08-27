@@ -191,15 +191,8 @@ const unregisterShortCut = async () => {
   // Mousetrap.unbind(['up', 'down', 'mod+del', 'mod+ins']);
 };
 const showFundDetail = async (fundEnt: Partial<IFundEnt>) => {
-  const dbList = FundDBHelper.getAll();
-  const fundList = dbList.map(db => {
-    return {
-      fundcode: db.data.id,
-      name: db.data.name,
-    };
-  });
-  const fundIndex = fundList.findIndex(x => x.fundcode === fundEnt.id);
-  const url = `/assets/html/fundDetail/fundDetail.html?fundList=${encodeURIComponent(JSON.stringify(fundList))}&fundIndex=${fundIndex}`;
+  const url = `/assets/html/fundDetail/fundDetail.html?id=${fundEnt.id}`;
+  // console.log(`url : `, url);
   // const title = `${fundName}(${fundCode})`;
   const fundDetailUbWindow = utools.createBrowserWindow(
     url,
